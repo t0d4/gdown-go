@@ -1,4 +1,4 @@
-# gdown: CLI downloader for Google Drive
+# gdown-go: Yet-another CLI downloader for Google Drive
 
 ![release workflow status](https://github.com/t0d4/gdown-go/actions/workflows/release.yml/badge.svg)
 
