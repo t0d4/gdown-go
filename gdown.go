@@ -174,7 +174,6 @@ func main() {
 	fileId := matches[1]
 	// the value for "confirm" parameter seems to be arbitrary
 	downloadURL := fmt.Sprintf("https://drive.google.com/uc?export=download&confirm=yes&id=%s", fileId)
-	fmt.Println(downloadURL)
 
 	// perform operations based on mode parameter
 	switch opts.mode {
