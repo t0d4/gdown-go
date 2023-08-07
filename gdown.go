@@ -29,10 +29,10 @@ type CmdOptions struct {
 }
 
 func parseOptions(opts *CmdOptions) {
-	flag.StringVar(&opts.mode, "mode", "download", "operation to perform. should be either \"download\"(download the file) or \"show\"(show information about the file).")
-	flag.BoolVar(&opts.skipConfirmation, "y", false, "when supplied, skip confirmation before starting the download.")
-	flag.StringVar(&opts.fileURL, "url", "", "the URL you can retrieve on Google Drive by \"Share\" -> \"Copy link\".")
-	flag.StringVar(&opts.outputFileName, "o", "", "filename to save the file as. this parameter is optional.")
+	flag.StringVar(&opts.mode, "mode", "download", "[Optional] operation to perform. should be either \"download\" (download the file) or\n \"show\" (show information about the file).")
+	flag.BoolVar(&opts.skipConfirmation, "y", false, "[Optional] when supplied, skip confirmation before starting the download.")
+	flag.StringVar(&opts.fileURL, "url", "", "<Required> the URL you can retrieve on Google Drive by \"Share\" => \"Copy link\".")
+	flag.StringVar(&opts.outputFileName, "o", "", "[Optional] filename to save the file as.")
 	flag.Parse()
 }
 
@@ -81,7 +81,7 @@ func showFileInfo(downloadURL string) error {
 		"[Information of the file]\n"+
 			"filename: %s\n"+
 			"filesize: %s\n",
-		fileInfo.filename, humanize.Bytes(fileInfo.filesize),
+		fileInfo.filename, humanize.IBytes(fileInfo.filesize),
 	)
 	return nil
 }
@@ -107,7 +107,7 @@ func downloadFile(downloadURL, outputFileName string, skipConfirmation bool) err
 	}
 
 	if !skipConfirmation {
-		fmt.Printf("Download %s (%s) and save as %s ? [Y/n]: ", fileInfo.filename, humanize.Bytes(fileInfo.filesize), fileName)
+		fmt.Printf("Download %s (%s) and save as %s? [Y/n]: ", fileInfo.filename, humanize.IBytes(fileInfo.filesize), fileName)
 		scanner := bufio.NewScanner(os.Stdin)
 		scanner.Scan()
 		if scanner.Text() == "n" {
@@ -159,7 +159,7 @@ func main() {
 	}
 
 	// check if a correct URL is supplied, and extract fileID to construct download URL
-	re := regexp.MustCompile(`https://drive\.google\.com/file/d/(\S{33})/view\?usp=drive_link`)
+	re := regexp.MustCompile(`https://drive\.google\.com/file/d/([^/]{33})`)
 	matches := re.FindStringSubmatch(opts.fileURL)
 	if len(matches) != 2 {
 		fmt.Fprintf(
