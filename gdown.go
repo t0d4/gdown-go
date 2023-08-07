@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"net/url"
 	"os"
 	"regexp"
 	"strconv"
@@ -48,16 +49,19 @@ func extractInfoFromHeader(header http.Header) (FileInfo, error) {
 	// retrieve file size
 	fileSize, err := strconv.ParseUint(header.Get("Content-Length"), 10, 64)
 	if err != nil {
-		return FileInfo{}, fmt.Errorf("[ %c Error] Something went wrong during parsing Content-Length header", EMOJI_CROSSMARK)
+		return FileInfo{}, fmt.Errorf("[ %c Error] Something went wrong during parsing Content-Length header: "+err.Error(), EMOJI_CROSSMARK)
 	}
 	// retrieve filename
 	contentDisposeHeader := header.Get("Content-Disposition")
-	re := regexp.MustCompile(`filename="(.+)"`)
+	re := regexp.MustCompile(`filename\*=UTF-8''(\S+)`)
 	fileNameKV := re.FindStringSubmatch(contentDisposeHeader)
 	if len(fileNameKV) != 2 {
-		return FileInfo{}, fmt.Errorf("[ %c Error] Something went wrong during parsing Content-Disposition header", EMOJI_CROSSMARK)
+		return FileInfo{}, fmt.Errorf("[ %c Error] Something went wrong during parsing Content-Disposition header: "+err.Error(), EMOJI_CROSSMARK)
 	}
-	fileName := fileNameKV[1] // filenameKV is an array like [filename="myfile.zip" myfile.zip]
+	fileName, err := url.QueryUnescape(fileNameKV[1]) // filenameKV is an array like [filename="myfile.zip" myfile.zip], and these elements can be percent-encoded.
+	if err != nil {
+		return FileInfo{}, fmt.Errorf("[ %c Error] Something went wrong during decoding url-encoded filename: "+err.Error(), EMOJI_CROSSMARK)
+	}
 
 	return FileInfo{filesize: fileSize, filename: fileName}, nil
 }
