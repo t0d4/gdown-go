@@ -20,7 +20,7 @@ To download a file, run
 $ gdown -url <sharing URL of the file to download>
 ```
 
-where \<sharing URL of the file to download\> is the URL you can get on Google Drive by "Share" -> "Copy link"
+where \<sharing URL of the file to download\> is the URL you can get on Google Drive by "Share" => "Copy link"
 
 ### Parameters
 
@@ -30,7 +30,7 @@ where \<sharing URL of the file to download\> is the URL you can get on Google D
     - "download" (download the file)
     - "show" (show information about the file)
 -url string
-    <Required> the URL you can retrieve on Google Drive by "Share" -> "Copy link".
+    <Required> the URL you can retrieve on Google Drive by "Share" => "Copy link".
 -o string
     [Optional] filename to save the file as.
 -y
