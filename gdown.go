@@ -30,12 +30,14 @@ type CmdOptions struct {
 	outputFileName   string
 }
 
-func parseOptions(opts *CmdOptions) {
+func parseOptions() CmdOptions {
+	var opts CmdOptions
 	flag.StringVar(&opts.mode, "mode", "download", "[Optional] operation to perform. should be either \"download\" (download the file) or\n \"show\" (show information about the file).")
 	flag.BoolVar(&opts.skipConfirmation, "y", false, "[Optional] when supplied, skip confirmation before starting the download.")
 	flag.StringVar(&opts.fileURL, "url", "", "<Required> the URL you can retrieve on Google Drive by \"Share\" => \"Copy link\".")
 	flag.StringVar(&opts.outputFileName, "o", "", "[Optional] filename to save the file as.")
 	flag.Parse()
+	return opts
 }
 
 // ///////////////////////////////
@@ -143,8 +145,7 @@ func downloadFile(downloadURL, outputFileName string, skipConfirmation bool) err
 func main() {
 
 	// parse command line argument and put them into a struct
-	var opts CmdOptions
-	parseOptions(&opts)
+	opts := parseOptions()
 
 	// flag package doesn't allow us to mix positional and optional arguments.
 	// in order not to confuse users, report an error if any positional argument is supplied.
