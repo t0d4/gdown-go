@@ -10,6 +10,7 @@ import (
 	"os"
 	"regexp"
 	"strconv"
+	"strings"
 
 	"github.com/cheggaaa/pb/v3"
 	"github.com/dustin/go-humanize"
@@ -53,12 +54,12 @@ func extractInfoFromHeader(header http.Header) (FileInfo, error) {
 	}
 	// retrieve filename
 	contentDisposeHeader := header.Get("Content-Disposition")
-	re := regexp.MustCompile(`filename\*=UTF-8''(\S+)`)
+	re := regexp.MustCompile(`filename\*=UTF-8''(.+)`)
 	fileNameKV := re.FindStringSubmatch(contentDisposeHeader)
 	if len(fileNameKV) != 2 {
 		return FileInfo{}, fmt.Errorf("[ %c Error] Something went wrong during parsing Content-Disposition header: "+err.Error(), EMOJI_CROSSMARK)
 	}
-	fileName, err := url.QueryUnescape(fileNameKV[1]) // filenameKV is an array like [filename="myfile.zip" myfile.zip], and these elements can be percent-encoded.
+	fileName, err := url.QueryUnescape(strings.TrimSpace(fileNameKV[1])) // filenameKV is an array like [filename="myfile.zip" myfile.zip], and these elements can be percent-encoded.
 	if err != nil {
 		return FileInfo{}, fmt.Errorf("[ %c Error] Something went wrong during decoding url-encoded filename: "+err.Error(), EMOJI_CROSSMARK)
 	}
@@ -71,10 +72,10 @@ func showFileInfo(downloadURL string) error {
 	if err != nil {
 		return err
 	}
-	if resp.StatusCode != 200 {
+	defer resp.Body.Close()
+	if resp.StatusCode != http.StatusOK {
 		return fmt.Errorf("[ %c Error] Got an unusual response. Status code: %d", EMOJI_CROSSMARK, resp.StatusCode)
 	}
-	defer resp.Body.Close()
 
 	fileInfo, err := extractInfoFromHeader(resp.Header)
 	if err != nil {
@@ -95,10 +96,10 @@ func downloadFile(downloadURL, outputFileName string, skipConfirmation bool) err
 	if err != nil {
 		return err
 	}
-	if resp.StatusCode != 200 {
+	defer resp.Body.Close()
+	if resp.StatusCode != http.StatusOK {
 		return fmt.Errorf("[ %c Error] Got an unusual response. Status code: %d", EMOJI_CROSSMARK, resp.StatusCode)
 	}
-	defer resp.Body.Close()
 
 	fileInfo, err := extractInfoFromHeader(resp.Header)
 	if err != nil {
